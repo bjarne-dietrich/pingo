@@ -1,0 +1,3 @@
+.env # ignore local environment variable file
+bin/ # ingore built executables
+.vscode/ # ignore vscode
