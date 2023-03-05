@@ -117,7 +117,7 @@ func ping(dst net.IP, count uint, ipv6 bool) (result []float32) {
 	// Loop for multiple pings
 	for i := 0; i < int(count); i++ {
 
-		packet, err := icmp.NewICMPv4EchoRequestPacket(identifier, sequenceNumber, 56, []byte("Hello, Papa! "))
+		packet, err := icmp.NewICMPv4EchoRequestPacket(identifier, sequenceNumber, 56, utils.DummyData)
 		if err != nil {
 			panic(err)
 		}
