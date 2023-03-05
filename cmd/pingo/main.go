@@ -100,24 +100,37 @@ func main() {
 	}
 
 	fmt.Printf("PING %s (%s): 56 data bytes\n", destinationHost, destinationIP)
-	_ = ping(destinationIP, countFlag, ipv6Flag)
+	_ = ping(destinationIP, countFlag)
 
 }
 
-func ping(dst net.IP, count uint, ipv6 bool) (result []float32) {
+func ping(dst net.IP, count uint) (result []float32) {
 	var identifier uint16 = uint16(rand.Uint32() & 0xffff)
 	var sequenceNumber uint16 = 0
+	var network string = "ip4:icmp"
+	var conn net.PacketConn = nil
+	var err error = nil
 
-	conn, err := net.ListenPacket("ip4:icmp", "")
+	if utils.IsIPv6(dst) {
+		network = "ip6:ipv6-icmp"
+	}
+
+	conn, err = net.ListenPacket(network, "")
 	if err != nil {
 		panic(err)
 	}
+
 	result = make([]float32, 0)
 
 	// Loop for multiple pings
 	for i := 0; i < int(count); i++ {
+		var packet icmp.ICMPPacket
+		if utils.IsIPv4(dst) {
+			packet, err = icmp.NewICMPv4EchoRequestPacket(identifier, sequenceNumber, 56, utils.DummyData)
+		} else {
+			packet, err = icmp.NewICMPv6EchoRequestPacket(identifier, sequenceNumber, 56, utils.DummyData)
+		}
 
-		packet, err := icmp.NewICMPv4EchoRequestPacket(identifier, sequenceNumber, 56, utils.DummyData)
 		if err != nil {
 			panic(err)
 		}
